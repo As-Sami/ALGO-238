@@ -1,16 +1,16 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#define print(x) cout << #x << " = " << x << endl
 const int N = 1000;
 vector<int>g[N];
-
 
 void remove_edge(int u, int v){
     g[u].erase( find(g[u].begin(), g[u].end(), v) );
     g[v].erase( find(g[v].begin(), g[v].end(), u) );
 }
 
-void dfs(int u, vector<bool> vis, int x, int y){
+void dfs(int u, vector<bool> &vis, int x = -1, int y = -1){
 
     vis[u] = true;
 
@@ -24,13 +24,25 @@ void dfs(int u, vector<bool> vis, int x, int y){
 bool is_bridge(int n, int x, int y){
     vector<bool> vis(n,0);
 
-    dfs(0, vis, x,y);
+    int comp = 0;
 
-    for( int i=0 ; i<n ; i++ )
-        if(vis[i]==0)
-            return 1;
-    
-    return 0;
+    for( int i=0 ; i<n ; i++ ){
+        if(vis[i]==0){
+            dfs(0, vis);
+            comp++;
+        }
+    }
+
+    vis.resize(n,0);
+    int cur_comp = 0;
+    for( int i=0 ; i<n ; i++ ){
+        if(vis[i]==0){
+            dfs(0, vis, x, y);
+            cur_comp++;
+        }
+    }    
+
+    return cur_comp>=comp;
 }
 
 int main()
@@ -41,6 +53,7 @@ int main()
     {
         int x,y;
         cin >> x >> y;
+        // x--,y--;
         g[x].push_back(y);
         g[y].push_back(x);
     }
@@ -50,13 +63,15 @@ int main()
         if( g[i].size()&1 )
             node.push_back(i);
 
-    if( node.size()>2 ){
+    if( node.size()>2 or node.size()==1 ){
         cout << "Impossible" << endl;
         return 0;
     }
 
-    int u = node[0];
+    int u = node.size() ? node[0] : 0;
     vector<pair<int, int>>ans;
+
+    int a = 0;
 
     while( ans.size()!=m )
     {   
@@ -69,8 +84,8 @@ int main()
                 y = v;
             }else{
                 ans.push_back({u,v});
-                u = v;
                 remove_edge(u,v);
+                u = v;
                 f = 1;
                 break;
             }
