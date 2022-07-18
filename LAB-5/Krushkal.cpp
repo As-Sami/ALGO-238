@@ -49,6 +49,7 @@ int main(){
 
 	}
 
+
 	int total = 0;
 	for(auto [x, y, z] : ans){
 		total += z;
