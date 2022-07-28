@@ -3,94 +3,72 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define ll long long
-#define pb push_back
-#define pii pair<ll,ll>
+#define endl '\n'
 #define print(x) cout << #x << " = " << x << endl
-#define inf LLONG_MAX
-#define all(x) x.begin(),x.end()
-const int mod = 1e9+7;
 
+#define int long long 
+const int N = 5000 + 5, inf = 1e18;
+set<pair<int, int>>g[N];
+int tt = 1;
 
+void run(){
+    
+    int n,m;
+    cin >> n >> m;
+    while(m--){
+        int x,y,z;
+        cin >> x >> y >> z;
+        g[x].insert({z,y});
+        g[y].insert({z,x});
+    }
 
-int main()
-{
-    int t,Case=1;
-    cin >> t;
-    while(t--)
-    {
-        ll n,m;
-        cin >> n >> m;
+    vector<int>dis1(n+1, inf), dis2(n+1, inf);
+    priority_queue<pair<int, int>, 
+                    vector<pair<int, int>>, 
+                    greater<pair<int, int>>>pq;
 
-        vector<vector<pii > >adj(n+1);
-        vector<pii >nodeW(n+1);
-        
-        for( ll i=0 ; i<n ; i++ )
-        {
-            nodeW[i+1].first = inf;
-            nodeW[i+1].second = inf;
-        }
+    dis1[1] = 0;
+    pq.push({0, 1});
 
-        for( ll i=0 ; i<m ; i++ ){
-            ll x,y,z;
-            cin >> x >> y >> z;
-            adj[x].pb({y,z});
-            adj[y].pb({x,z});
-        }
-        
-        priority_queue<pii  , vector<pii > , greater<pii > >pq;
+    while(pq.size()){   
+        int cost = pq.top().first;
+        int u = pq.top().second;
+        pq.pop();
 
-        nodeW[1].first = 0;
-        pq.push({0,1});
-int  y=0;
-        while(!pq.empty())
-        {
-            ll cst = pq.top().first, node = pq.top().second;
-            ll newcost,curNode;
-            pq.pop();
-           
-            // if(curNode==1 && y)
-            //     continue;
-
-            // y=1;
-            // print(cst);
-            for( ll i=0 ; i<adj[node].size() ; i++ )
+        for(auto [w, v] : g[u]){
+            int new_cost = cost + w;
+            
+            if( new_cost < dis1[v]  )
             {
-                newcost = cst + adj[node][i].second;
-                curNode= adj[node][i].first;
-                // print(curNode);
-                // print(newcost);
-
-                if(nodeW[curNode].first==nodeW[curNode].second)
-                {
-                    nodeW[curNode].first = newcost;
-                    pq.push({newcost,curNode});
-                
-                }  
-                else if( (nodeW[curNode].first >= nodeW[curNode].second 
-                       && nodeW[curNode].second >= newcost ) 
-                                    ||
-                       (  nodeW[curNode].first>=newcost 
-                       && newcost>=nodeW[curNode].second ) )
-                {
-                    nodeW[curNode].first = newcost;
-                    pq.push({newcost,curNode});
-                }
-                else if( (nodeW[curNode].second>=nodeW[curNode].second 
-                      &&  nodeW[curNode].first >= newcost)
-                                    ||
-                          nodeW[curNode].second>=newcost 
-                      &&  newcost >= nodeW[curNode].first)
-                {
-                    nodeW[curNode].second = newcost;
-                    pq.push({newcost,curNode});
-                }
-                
+                dis1[v] = new_cost;
+                pq.push({new_cost, v});
+            }
+            else if( new_cost < dis2[v] )
+            {
+                dis2[v] = new_cost==dis1[v] ? dis2[v] : new_cost;
+                pq.push({new_cost, v});
             }
         }
-        // print(nodeW[n].first);
-        // print(nodeW[n].second);
-        cout << "Case " << Case++ << ": "<< max(nodeW[n].second,nodeW[n].first) << endl;
     }
+
+    // for( int i=1 ; i<=n ; i++ ){
+    //     cout << i << " -> " << dis1[i] << " " << dis2[i] << endl;
+    // }
+    
+
+    cout << "Case " << tt++ << ": " << dis2[n] << endl;
+    
+    for(int i=1 ; i<=n ; i++)
+        g[i].clear();
+}
+
+int32_t main()
+{
+    int t = 1;
+    cin >> t;
+    
+    while( t --> 0 ) 
+        run();
+    
     return 0;
 }
